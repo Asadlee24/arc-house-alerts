@@ -24,6 +24,15 @@ const CONTENT_PATTERNS = [
 
 export async function scrapeArcHouse(): Promise<ScrapedItem[]> {
   const items: ScrapedItem[] = [];
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const isRecent = (dateStr?: string) => {
+    if (!dateStr) return true; // If no date, assume it's new
+    const itemDate = new Date(dateStr);
+    return itemDate >= yesterday;
+  };
 
   for (const url of TARGET_URLS) {
     try {
@@ -42,7 +51,6 @@ export async function scrapeArcHouse(): Promise<ScrapedItem[]> {
         const href = $(el).attr('href');
         if (!href) return;
 
-        // Normalize URL
         let fullUrl = href;
         if (href.startsWith('/')) {
           fullUrl = `https://community.arc.network${href}`;
@@ -50,29 +58,39 @@ export async function scrapeArcHouse(): Promise<ScrapedItem[]> {
 
         const isMatch = CONTENT_PATTERNS.some(p => fullUrl.includes(p));
         if (isMatch) {
-          const title = $(el).text().trim() || $(el).attr('title')?.trim() || 'Untitled Content';
+          // Clean title parsing: ignore elements that look like CSS or are too long/short
+          let title = $(el).find('h2, h3, span, p').first().text().trim() || $(el).text().trim();
           
-          // Basic type detection from URL
+          // Remove CSS junk if detected
+          if (title.includes('{') || title.includes('.css-') || title.length < 5) {
+             title = $(el).attr('aria-label') || $(el).attr('title') || '';
+          }
+          
+          // Final fallback: try to get text from parent if needed, or clean up the string
+          title = title.replace(/\.css-[\w-]+{[^}]+}/g, '').trim();
+
+          if (!title || title.length < 5) return;
+
           let type = 'Article';
           if (fullUrl.includes('/blogs/')) type = 'Blog';
           else if (fullUrl.includes('/videos/')) type = 'Video';
           else if (fullUrl.includes('/events/')) type = 'Event';
           else if (fullUrl.includes('/resources/')) type = 'Resource';
-          else if (fullUrl.includes('/externals/')) type = 'External';
 
-          // Basic date extraction from URL if present (e.g., -2026-05-15)
           const dateMatch = fullUrl.match(/(\d{4}-\d{2}-\d{2})/);
           const date = dateMatch ? dateMatch[0] : undefined;
 
-          // Deduplicate within the same scrape
-          if (!items.find(i => i.url === fullUrl) && title.length > 5) {
-            items.push({
-              id: fullUrl, // Use URL as ID
-              title,
-              url: fullUrl,
-              type,
-              date
-            });
+          // FILTER: Only keep recent items to avoid spamming old content
+          if (isRecent(date)) {
+            if (!items.find(i => i.url === fullUrl)) {
+              items.push({
+                id: fullUrl,
+                title,
+                url: fullUrl,
+                type,
+                date
+              });
+            }
           }
         }
       });
