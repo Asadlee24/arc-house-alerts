@@ -13,7 +13,9 @@ import {
   History,
   LayoutDashboard,
   ShieldCheck,
-  Zap
+  Zap,
+  Twitter,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
@@ -108,6 +110,30 @@ export default function Dashboard() {
             </button>
           ))}
         </nav>
+
+        {/* Developer Credit */}
+        <div className="p-4 mt-auto border-t border-white/10">
+          <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-4 hidden md:block">
+            <p className="text-xs text-blue-400 font-semibold uppercase tracking-wider mb-2">Developed by</p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <User className="w-4 h-4" />
+              </div>
+              <span className="font-bold text-sm">Asad Lee</span>
+            </div>
+            <div className="flex gap-2">
+              <a href="https://x.com/asadleo416?s=21" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-blue-400 transition-all">
+                <Twitter className="w-4 h-4" />
+              </a>
+              <a href="https://asad-lee-portfolio.vercel.app" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-blue-400 transition-all">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+          <div className="md:hidden flex justify-center py-4">
+            <User className="w-6 h-6 text-blue-400" />
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -235,6 +261,11 @@ export default function Dashboard() {
           </section>
         </div>
       </main>
+      
+      {/* Footer Credit for mobile */}
+      <footer className="md:hidden p-8 border-t border-white/10 text-center text-gray-500 text-sm">
+        Developed with ❤️ by <a href="https://asad-lee-portfolio.vercel.app" className="text-blue-400 font-bold">Asad Lee</a>
+      </footer>
     </div>
   );
 }

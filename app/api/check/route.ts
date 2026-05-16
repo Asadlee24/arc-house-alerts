@@ -12,6 +12,7 @@ export async function GET(request: Request) {
 
     for (const item of items) {
       if (await isNewContent(item.id)) {
+        // Send Telegram alert with User Credits
         const message = `
 🔔 *New Content on Arc House!*
 
@@ -21,11 +22,16 @@ ${item.date ? `*Date:* ${item.date}` : ''}
 
 🔗 [Read Article](${item.url})
 
-#ArcHouse #${item.type.toLowerCase()} #NewPoints
+---
+🛠️ *Developed by:* [Asad Lee](https://asad-lee-portfolio.vercel.app)
+🐦 [Follow on X](https://x.com/asadleo416?s=21)
+
+#ArcHouse #AsadLee #NewPoints
         `.trim();
 
         await sendTelegramMessage(message);
 
+        // Save to DB
         await markAsSeen(item.id);
         await saveContent({
           ...item,
