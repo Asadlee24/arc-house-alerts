@@ -12,24 +12,34 @@ export async function GET(request: Request) {
 
     for (const item of items) {
       if (await isNewContent(item.id)) {
-        // Send Telegram alert with User Credits
+        // Prepare Message
         const message = `
-🔔 *New Content on Arc House!*
+🌟 *New Content on Arc House!* 🚀
 
 *Title:* ${item.title}
 *Type:* ${item.type}
 ${item.date ? `*Date:* ${item.date}` : ''}
 
-🔗 [Read Article](${item.url})
+💰 *Points Reminder:* Naye articles se aapko daily points milte hain. Foran check karein aur apne points claim karein!
 
 ---
 🛠️ *Developed by:* [Asad Lee](https://asad-lee-portfolio.vercel.app)
-🐦 [Follow on X](https://x.com/asadleo416?s=21)
-
-#ArcHouse #AsadLee #NewPoints
         `.trim();
 
-        await sendTelegramMessage(message);
+        // Prepare Pro Inline Buttons
+        const reply_markup = {
+          inline_keyboard: [
+            [
+              { text: '📖 Read Article', url: item.url },
+              { text: '🐦 Follow Developer', url: 'https://x.com/asadleo416?s=21' }
+            ],
+            [
+              { text: '👨‍💻 Portfolio', url: 'https://asad-lee-portfolio.vercel.app' }
+            ]
+          ]
+        };
+
+        await sendTelegramMessage(message, 'Markdown', reply_markup);
 
         // Save to DB
         await markAsSeen(item.id);

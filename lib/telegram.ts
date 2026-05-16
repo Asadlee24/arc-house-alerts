@@ -1,4 +1,4 @@
-export async function sendTelegramMessage(text: string, parse_mode: 'Markdown' | 'HTML' = 'Markdown') {
+export async function sendTelegramMessage(text: string, parse_mode: 'Markdown' | 'HTML' = 'Markdown', reply_markup?: any) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -18,6 +18,7 @@ export async function sendTelegramMessage(text: string, parse_mode: 'Markdown' |
         text: text,
         parse_mode: parse_mode,
         disable_web_page_preview: false,
+        reply_markup: reply_markup
       }),
     });
 
